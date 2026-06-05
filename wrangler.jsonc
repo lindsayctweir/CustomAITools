@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "custom-api-tools-v2",
+  "name": "custom-ai-tools",
   "main": "worker.js",
   "compatibility_date": "2026-06-01",
   "ai": {
