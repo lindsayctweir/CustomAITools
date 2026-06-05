@@ -406,34 +406,14 @@
   <div id="resultsWrap"></div>
 
   <footer class="page-footer">
-    <p><strong>Inclusive Language Scanner</strong><br>Built with Claude AI · For professional and educational use</p>
+    <p><strong>Inclusive Language Scanner</strong><br>Powered by Cloudflare Workers AI · For professional and educational use</p>
     <p style="text-align:right">Sources: <a href="https://contentdesign.intuit.com/word-list/" target="_blank">Intuit Content Design</a> · <a href="https://contentdesign.intuit.com/accessibility-and-inclusion/anti-racist-language/" target="_blank">Intuit anti-racist language guide</a> · AP Stylebook · WCAG</p>
   </footer>
 
 </div>
 
 <script>
-const ANTHROPIC_API = 'https://custom-api-tools-v2.lindsayctweir.workers.dev';
-
-const SYSTEM = `You are an inclusive language expert. Analyze text for non-inclusive, biased, or exclusionary language across ALL of these categories:
-
-1. GENDER - gendered terms when neutral alternatives exist (e.g. "manpower", "chairman", "guys" when addressing a mixed group, "he/she" as default pronoun, "mankind", gendered job titles like "fireman", "stewardess")
-2. ABILITY / ABLEISM - language that uses disability or mental health as metaphor or insult (e.g. "crazy", "blind spot", "lame", "crippled", "dumb", "falls on deaf ears", "tone-deaf", "sanity check", "turning a blind eye")
-3. RACE / ETHNICITY - terms with racist roots or that center whiteness, including from Intuit's anti-racist word list: blacklist/whitelist, master/slave, black hat/white hat, black box, grandfathered, peanut gallery, sold down the river, spirit animal, tribe (casual use), powwow, brown bag, cakewalk, hold down the fort, circle the wagons, bounty, open the kimono, tiger team, conquer, denigrate, redline, stakeholder (metaphorical), white label, white glove
-4. AGE - ageist assumptions (e.g. "digital natives", "seasoned professional", assumptions that young = tech-savvy, old = resistant to change)
-5. SOCIOECONOMIC - terms that assume wealth or resources (e.g. "just grab a flight", phrases assuming home ownership or leisure)
-6. GENERAL EXCLUSION - othering language, cultural appropriation, jargon that excludes, or terms that imply a narrow "normal"
-
-For EACH flagged item return a JSON array. Each item:
-- "term": exact word/phrase as it appears in text
-- "category": one of: gender, ability, race/ethnicity, age, socioeconomic, general
-- "why": 1-2 sentences on WHY it's problematic and its historical/cultural context
-- "suggestions": array of 2-4 specific replacement words/phrases
-- "learn_more": 2-3 sentences of practical education — broader writing practice advice, not just about this one word
-
-If the text is already inclusive, return [].
-
-Respond ONLY with a valid JSON array. No preamble, no markdown fences.`;
+const SCAN_API = 'https://custom-api-tools-v2.lindsayctweir.workers.dev';
 
 const CAT_STYLE = {
   gender:         { bg: '#E6F1FB', text: '#0C447C' },
@@ -460,28 +440,22 @@ async function runScan() {
   document.getElementById('resultsWrap').innerHTML = '';
 
   try {
-    const resp = await fetch(ANTHROPIC_API, {
+    const resp = await fetch(SCAN_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: SYSTEM,
-        messages: [{ role: 'user', content: 'Scan this text:\n\n' + text }]
-      })
+      body: JSON.stringify({ text })
     });
 
+    const data = await resp.json().catch(() => ({}));
+
     if (!resp.ok) {
-      const detail = resp.status === 405
-        ? 'The scan service is not configured yet (405 Method Not Allowed).'
-        : `Request failed (${resp.status}). Please try again.`;
+      const detail = data.error
+        || (resp.status === 405 ? 'The scan service is not configured yet (405 Method Not Allowed).' : null)
+        || `Request failed (${resp.status}). Please try again.`;
       throw new Error(detail);
     }
 
-    const data = await resp.json();
-    const raw = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
-    const flags = JSON.parse(raw.replace(/```json|```/g, '').trim());
-    renderResults(flags, text);
+    renderResults(data.flags, text);
   } catch(e) {
     const msg = e.message || 'Something went wrong. Please try again.';
     document.getElementById('resultsWrap').innerHTML = '<div class="error-box"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' + msg + '</div>';
