@@ -471,12 +471,20 @@ async function runScan() {
       })
     });
 
+    if (!resp.ok) {
+      const detail = resp.status === 405
+        ? 'The scan service is not configured yet (405 Method Not Allowed).'
+        : `Request failed (${resp.status}). Please try again.`;
+      throw new Error(detail);
+    }
+
     const data = await resp.json();
     const raw = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
     const flags = JSON.parse(raw.replace(/```json|```/g, '').trim());
     renderResults(flags, text);
   } catch(e) {
-    document.getElementById('resultsWrap').innerHTML = '<div class="error-box"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Something went wrong. Please try again.</div>';
+    const msg = e.message || 'Something went wrong. Please try again.';
+    document.getElementById('resultsWrap').innerHTML = '<div class="error-box"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' + msg + '</div>';
   }
 
   btn.disabled = false;

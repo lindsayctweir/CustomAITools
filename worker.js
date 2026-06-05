@@ -1,10 +1,16 @@
-// Cloudflare Worker — paste this entire file into the dashboard editor and click Deploy.
+// Cloudflare Worker API proxy for GitHub Pages frontend.
 //
-// Dashboard steps:
+// Deploy (replaces static-asset hosting that causes 405 on POST):
+//   npx wrangler deploy
+//
+// Set the API key secret once:
+//   npx wrangler secret put ANTHROPIC_API_KEY
+//
+// Dashboard alternative:
 // 1. Workers & Pages → custom-api-tools-v2 → Quick edit
-// 2. Select all existing code, delete it, paste this file
+// 2. Replace ALL code with this file, remove any static-asset bindings
 // 3. Deploy
-// 4. Settings → Variables → Add → Type: Secret → Name: ANTHROPIC_API_KEY → paste your key → Deploy
+// 4. Settings → Variables → Secret → ANTHROPIC_API_KEY
 
 const ALLOWED_ORIGINS = new Set([
   'https://lindsayctweir.github.io',
