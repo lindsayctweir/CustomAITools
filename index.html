@@ -345,6 +345,46 @@
   .source-footer a { color: var(--accent); text-decoration: none; }
   .source-footer a:hover { text-decoration: underline; }
 
+  .sources-section {
+    margin-top: 2.5rem;
+    padding: 1.25rem 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+  }
+
+  .sources-heading {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .sources-intro {
+    font-size: 13px;
+    color: var(--ink2);
+    line-height: 1.55;
+    margin-bottom: 12px;
+  }
+
+  .sources-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--ink2);
+  }
+
+  .sources-list a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .sources-list a:hover { text-decoration: underline; }
+
   .page-footer {
     margin-top: 3rem;
     padding-top: 1.5rem;
@@ -405,9 +445,23 @@
 
   <div id="resultsWrap"></div>
 
+  <section class="sources-section" aria-labelledby="sources-heading">
+    <h2 id="sources-heading" class="sources-heading">Sources</h2>
+    <p class="sources-intro">This scanner draws on the following inclusive language guides and style references:</p>
+    <ul class="sources-list">
+      <li><a href="https://contentdesign.intuit.com/word-list/" target="_blank" rel="noopener">Intuit Content Design word list</a></li>
+      <li><a href="https://contentdesign.intuit.com/accessibility-and-inclusion/anti-racist-language/" target="_blank" rel="noopener">Intuit anti-racist language guide</a></li>
+      <li><a href="https://contentdesign.intuit.com/accessibility-and-inclusion/inclusive-content/" target="_blank" rel="noopener">Intuit inclusive content guidelines</a></li>
+      <li><a href="https://share.google/eZDfg1q8O4n1sLagk" target="_blank" rel="noopener">ISO/IEC non-inclusive terminology list</a></li>
+      <li><a href="https://metaverse-standards.org/diversity-and-inclusion/inclusive-language/" target="_blank" rel="noopener">Metaverse Standards Forum — inclusive language</a></li>
+      <li><a href="https://www.gov.uk/government/publications/inclusive-communication/inclusive-language-words-to-use-and-avoid-when-writing-about-disability" target="_blank" rel="noopener">GOV.UK — inclusive language about disability</a></li>
+      <li>AP Stylebook inclusive language guidance</li>
+      <li>WCAG accessibility standards</li>
+    </ul>
+  </section>
+
   <footer class="page-footer">
     <p><strong>Inclusive Language Scanner</strong><br>Powered by Cloudflare Workers AI · For professional and educational use</p>
-    <p style="text-align:right">Sources: <a href="https://contentdesign.intuit.com/word-list/" target="_blank">Intuit Content Design</a> · <a href="https://contentdesign.intuit.com/accessibility-and-inclusion/anti-racist-language/" target="_blank">Intuit anti-racist language guide</a> · AP Stylebook · WCAG</p>
   </footer>
 
 </div>
@@ -533,10 +587,13 @@ function renderResults(flags, text) {
 function sourceFooter() {
   return `<div class="source-footer">
     <strong>Sources used in this analysis:</strong><br>
-    <a href="https://contentdesign.intuit.com/word-list/" target="_blank">Intuit Content Design word list</a> ·
-    <a href="https://contentdesign.intuit.com/accessibility-and-inclusion/anti-racist-language/" target="_blank">Intuit anti-racist language guide</a> ·
-    <a href="https://contentdesign.intuit.com/accessibility-and-inclusion/inclusive-content/" target="_blank">Intuit inclusive content guidelines</a> ·
-    AP Stylebook inclusive language guidance · WCAG accessibility standards
+    <a href="https://contentdesign.intuit.com/word-list/" target="_blank" rel="noopener">Intuit Content Design word list</a> ·
+    <a href="https://contentdesign.intuit.com/accessibility-and-inclusion/anti-racist-language/" target="_blank" rel="noopener">Intuit anti-racist language guide</a> ·
+    <a href="https://contentdesign.intuit.com/accessibility-and-inclusion/inclusive-content/" target="_blank" rel="noopener">Intuit inclusive content guidelines</a> ·
+    <a href="https://share.google/eZDfg1q8O4n1sLagk" target="_blank" rel="noopener">ISO/IEC non-inclusive terminology list</a> ·
+    <a href="https://metaverse-standards.org/diversity-and-inclusion/inclusive-language/" target="_blank" rel="noopener">Metaverse Standards Forum</a> ·
+    <a href="https://www.gov.uk/government/publications/inclusive-communication/inclusive-language-words-to-use-and-avoid-when-writing-about-disability" target="_blank" rel="noopener">GOV.UK disability language guide</a> ·
+    AP Stylebook · WCAG
   </div>`;
 }
 
