@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inclusive Language Scanner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --surface2: #F0EDE6;
+    --ink: #1A1814;
+    --ink2: #6B6760;
+    --ink3: #9E9A94;
+    --accent: #2D5A3D;
+    --accent-bg: #EAF3DE;
+    --accent-text: #1A3D23;
+    --warn: #7A4A00;
+    --warn-bg: #FFF4E0;
+    --warn-text: #7A4A00;
+    --danger: #8B1A1A;
+    --danger-bg: #FDEAEA;
+    --danger-text: #8B1A1A;
+    --border: rgba(26,24,20,0.1);
+    --border-med: rgba(26,24,20,0.18);
+    --radius: 10px;
+    --radius-lg: 16px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .masthead {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-mark {
+    width: 48px;
+    height: 48px;
+    background: var(--ink);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .logo-mark svg { width: 26px; height: 26px; }
+
+  .masthead-text h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+
+  .masthead-text p {
+    font-size: 14px;
+    color: var(--ink2);
+    line-height: 1.55;
+    max-width: 520px;
+  }
+
+  .input-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.25rem;
+  }
+
+  .input-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 160px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--ink);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--ink3); }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .char-count {
+    font-size: 12px;
+    color: var(--ink3);
+  }
+
+  .btn-group { display: flex; gap: 8px; }
+
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 9px 18px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    line-height: 1;
+  }
+
+  .btn-primary {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+
+  .btn-primary:hover { background: #333; }
+  .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink2);
+    border-color: var(--border-med);
+  }
+
+  .btn-ghost:hover { background: var(--surface2); color: var(--ink); }
+
+  .spin {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.65s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .results { margin-top: 0; }
+
+  .summary-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .score-ring-wrap { flex-shrink: 0; }
+
+  .score-ring {
+    width: 64px; height: 64px;
+    position: relative;
+  }
+
+  .score-ring svg { transform: rotate(-90deg); }
+
+  .score-ring-text {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 500; color: var(--ink);
+  }
+
+  .summary-details { flex: 1; min-width: 180px; }
+
+  .summary-details h3 {
+    font-size: 15px; font-weight: 500; margin-bottom: 6px; color: var(--ink);
+  }
+
+  .cat-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+
+  .cat-pill {
+    font-size: 11px; font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 99px;
+  }
+
+  .flag-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .flag-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.1rem 1.25rem;
+    box-shadow: var(--shadow);
+  }
+
+  .flag-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .flag-badge {
+    font-size: 11px; font-weight: 500;
+    padding: 3px 9px; border-radius: 99px;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  .flag-term {
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px; color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .flag-why {
+    font-size: 13px; color: var(--ink2); line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .section-label {
+    font-size: 10px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--ink3); margin-bottom: 6px;
+  }
+
+  .suggest-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+
+  .suggest-pill {
+    font-size: 13px; padding: 4px 11px;
+    background: var(--accent-bg); color: var(--accent-text);
+    border-radius: 99px; font-weight: 500;
+  }
+
+  .learn-toggle {
+    background: none; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px; color: var(--ink3);
+    padding: 0; display: flex; align-items: center; gap: 5px;
+    transition: color 0.12s;
+  }
+
+  .learn-toggle:hover { color: var(--accent); }
+
+  .learn-toggle svg {
+    width: 14px; height: 14px;
+    transition: transform 0.2s;
+  }
+
+  .learn-toggle.open svg { transform: rotate(180deg); }
+
+  .learn-panel {
+    display: none;
+    margin-top: 10px;
+    padding: 12px 14px;
+    background: var(--surface2);
+    border-radius: var(--radius);
+    font-size: 13px; color: var(--ink2); line-height: 1.65;
+    border-left: 3px solid var(--accent);
+  }
+
+  .all-clear {
+    text-align: center; padding: 3rem 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+  }
+
+  .all-clear-icon {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--accent-bg);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px;
+  }
+
+  .all-clear-icon svg { width: 26px; height: 26px; stroke: var(--accent); }
+
+  .all-clear h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px; font-weight: 400; margin-bottom: 6px;
+  }
+
+  .all-clear p { font-size: 14px; color: var(--ink2); }
+
+  .error-box {
+    background: var(--danger-bg);
+    border: 1px solid rgba(139,26,26,0.15);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 13px; color: var(--danger-text);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .source-footer {
+    margin-top: 2rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--ink3); line-height: 1.6;
+  }
+
+  .source-footer strong { color: var(--ink2); }
+  .source-footer a { color: var(--accent); text-decoration: none; }
+  .source-footer a:hover { text-decoration: underline; }
+
+  .page-footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .page-footer p { font-size: 12px; color: var(--ink3); line-height: 1.6; }
+  .page-footer a { color: var(--ink2); text-decoration: none; }
+  .page-footer a:hover { text-decoration: underline; color: var(--accent); }
+
+  .cat-colors {
+    gender:     { bg: #E6F1FB; text: #0C447C; },
+  }
+
+  @media (max-width: 520px) {
+    .masthead { flex-direction: column; gap: 0.75rem; }
+    .summary-bar { gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="logo-mark" aria-hidden="true">
+      <svg viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="13" cy="13" r="11" stroke="white" stroke-width="1.5"/>
+        <path d="M8 13h10M13 8v10" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="13" cy="13" r="3" fill="white"/>
+      </svg>
+    </div>
+    <div class="masthead-text">
+      <h1>Inclusive Language Scanner</h1>
+      <p>Paste any text to identify language that may exclude or marginalize — with suggestions and education to help you write more inclusively.</p>
+    </div>
+  </header>
+
+  <div class="input-section">
+    <label class="input-label" for="inputText">Your text</label>
+    <textarea id="inputText" placeholder="Paste an email, job posting, presentation slide, policy doc, or any professional writing here..." oninput="updateCount()"></textarea>
+    <div class="toolbar">
+      <span class="char-count" id="charCount">0 words</span>
+      <div class="btn-group">
+        <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
+        <button class="btn btn-primary" id="scanBtn" onclick="runScan()">
+          <span id="btnLabel">Scan text</span>
+          <span id="btnSpinner" style="display:none"><span class="spin"></span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="resultsWrap"></div>
+
+  <footer class="page-footer">
+    <p><strong>Inclusive Language Scanner</strong><br>Built with Claude AI · For professional and educational use</p>
+    <p style="text-align:right">Sources: <a href="https://contentdesign.intuit.com/word-list/" target="_blank">Intuit Content Design</a> · <a href="https://contentdesign.intuit.com/accessibility-and-inclusion/anti-racist-language/" target="_blank">Intuit anti-racist language guide</a> · AP Stylebook · WCAG</p>
+  </footer>
+
+</div>
+
+<script>
+const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
+
+const SYSTEM = `You are an inclusive language expert. Analyze text for non-inclusive, biased, or exclusionary language across ALL of these categories:
+
+1. GENDER - gendered terms when neutral alternatives exist (e.g. "manpower", "chairman", "guys" when addressing a mixed group, "he/she" as default pronoun, "mankind", gendered job titles like "fireman", "stewardess")
+2. ABILITY / ABLEISM - language that uses disability or mental health as metaphor or insult (e.g. "crazy", "blind spot", "lame", "crippled", "dumb", "falls on deaf ears", "tone-deaf", "sanity check", "turning a blind eye")
+3. RACE / ETHNICITY - terms with racist roots or that center whiteness, including from Intuit's anti-racist word list: blacklist/whitelist, master/slave, black hat/white hat, black box, grandfathered, peanut gallery, sold down the river, spirit animal, tribe (casual use), powwow, brown bag, cakewalk, hold down the fort, circle the wagons, bounty, open the kimono, tiger team, conquer, denigrate, redline, stakeholder (metaphorical), white label, white glove
+4. AGE - ageist assumptions (e.g. "digital natives", "seasoned professional", assumptions that young = tech-savvy, old = resistant to change)
+5. SOCIOECONOMIC - terms that assume wealth or resources (e.g. "just grab a flight", phrases assuming home ownership or leisure)
+6. GENERAL EXCLUSION - othering language, cultural appropriation, jargon that excludes, or terms that imply a narrow "normal"
+
+For EACH flagged item return a JSON array. Each item:
+- "term": exact word/phrase as it appears in text
+- "category": one of: gender, ability, race/ethnicity, age, socioeconomic, general
+- "why": 1-2 sentences on WHY it's problematic and its historical/cultural context
+- "suggestions": array of 2-4 specific replacement words/phrases
+- "learn_more": 2-3 sentences of practical education — broader writing practice advice, not just about this one word
+
+If the text is already inclusive, return [].
+
+Respond ONLY with a valid JSON array. No preamble, no markdown fences.`;
+
+const CAT_STYLE = {
+  gender:         { bg: '#E6F1FB', text: '#0C447C' },
+  ability:        { bg: '#FAEEDA', text: '#633806' },
+  'race/ethnicity': { bg: '#FCEBEB', text: '#791F1F' },
+  age:            { bg: '#EEEDFE', text: '#3C3489' },
+  socioeconomic:  { bg: '#E1F5EE', text: '#085041' },
+  general:        { bg: '#F1EFE8', text: '#2C2C2A' }
+};
+
+function updateCount() {
+  const words = document.getElementById('inputText').value.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('charCount').textContent = words + ' word' + (words !== 1 ? 's' : '');
+}
+
+async function runScan() {
+  const text = document.getElementById('inputText').value.trim();
+  if (!text) return;
+
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = true;
+  document.getElementById('btnLabel').textContent = 'Scanning…';
+  document.getElementById('btnSpinner').style.display = 'inline-flex';
+  document.getElementById('resultsWrap').innerHTML = '';
+
+  try {
+    const resp = await fetch(ANTHROPIC_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM,
+        messages: [{ role: 'user', content: 'Scan this text:\n\n' + text }]
+      })
+    });
+
+    const data = await resp.json();
+    const raw = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    const flags = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    renderResults(flags, text);
+  } catch(e) {
+    document.getElementById('resultsWrap').innerHTML = '<div class="error-box"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Something went wrong. Please try again.</div>';
+  }
+
+  btn.disabled = false;
+  document.getElementById('btnLabel').textContent = 'Scan text';
+  document.getElementById('btnSpinner').style.display = 'none';
+}
+
+function renderResults(flags, text) {
+  const wrap = document.getElementById('resultsWrap');
+
+  if (!flags || flags.length === 0) {
+    wrap.innerHTML = `<div class="all-clear">
+      <div class="all-clear-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <h3>Looking good!</h3>
+      <p>No potentially non-inclusive language detected. Keep it up.</p>
+    </div>` + sourceFooter();
+    return;
+  }
+
+  const wordCount = text.split(/\s+/).filter(Boolean).length;
+  const score = Math.max(0, Math.round(100 - (flags.length / Math.max(wordCount, 1)) * 600));
+  const scoreColor = score >= 80 ? '#1D9E75' : score >= 50 ? '#BA7517' : '#E24B4A';
+  const r = 28, circ = 2 * Math.PI * r;
+  const dash = (score / 100) * circ;
+
+  const catCounts = {};
+  flags.forEach(f => { catCounts[f.category] = (catCounts[f.category] || 0) + 1; });
+
+  const catPills = Object.entries(catCounts).map(([cat, n]) => {
+    const s = CAT_STYLE[cat] || CAT_STYLE.general;
+    return `<span class="cat-pill" style="background:${s.bg};color:${s.text}">${n} ${cat}</span>`;
+  }).join('');
+
+  const summary = `<div class="summary-bar">
+    <div class="score-ring-wrap">
+      <div class="score-ring" title="Inclusivity score: ${score}/100">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="${r}" fill="none" stroke="#e8e4dc" stroke-width="5"/>
+          <circle cx="32" cy="32" r="${r}" fill="none" stroke="${scoreColor}" stroke-width="5"
+            stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" stroke-linecap="round"/>
+        </svg>
+        <div class="score-ring-text" style="color:${scoreColor}">${score}</div>
+      </div>
+    </div>
+    <div class="summary-details">
+      <h3>${flags.length} item${flags.length !== 1 ? 's' : ''} flagged</h3>
+      <div class="cat-pills">${catPills}</div>
+    </div>
+  </div>`;
+
+  const cards = flags.map((f, i) => {
+    const s = CAT_STYLE[f.category] || CAT_STYLE.general;
+    const pills = (f.suggestions || []).map(sg => `<span class="suggest-pill">${sg}</span>`).join('');
+    return `<div class="flag-card">
+      <div class="flag-header">
+        <span class="flag-badge" style="background:${s.bg};color:${s.text}">${f.category}</span>
+        <span class="flag-term">"${f.term}"</span>
+      </div>
+      <p class="flag-why">${f.why}</p>
+      ${pills ? `<div class="section-label">Try instead</div><div class="suggest-row">${pills}</div>` : ''}
+      <button class="learn-toggle" id="ltbtn-${i}" onclick="toggleLearn(${i})" aria-expanded="false">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l5 5 5-5"/></svg>
+        Learn how to improve your practice
+      </button>
+      <div class="learn-panel" id="lp-${i}">${f.learn_more}</div>
+    </div>`;
+  }).join('');
+
+  wrap.innerHTML = `<div class="results">${summary}<div class="flag-list">${cards}</div>${sourceFooter()}</div>`;
+}
+
+function sourceFooter() {
+  return `<div class="source-footer">
+    <strong>Sources used in this analysis:</strong><br>
+    <a href="https://contentdesign.intuit.com/word-list/" target="_blank">Intuit Content Design word list</a> ·
+    <a href="https://contentdesign.intuit.com/accessibility-and-inclusion/anti-racist-language/" target="_blank">Intuit anti-racist language guide</a> ·
+    <a href="https://contentdesign.intuit.com/accessibility-and-inclusion/inclusive-content/" target="_blank">Intuit inclusive content guidelines</a> ·
+    AP Stylebook inclusive language guidance · WCAG accessibility standards
+  </div>`;
+}
+
+function toggleLearn(i) {
+  const panel = document.getElementById('lp-' + i);
+  const btn = document.getElementById('ltbtn-' + i);
+  const open = panel.style.display === 'block';
+  panel.style.display = open ? 'none' : 'block';
+  btn.setAttribute('aria-expanded', !open);
+  btn.classList.toggle('open', !open);
+}
+
+function clearAll() {
+  document.getElementById('inputText').value = '';
+  document.getElementById('resultsWrap').innerHTML = '';
+  updateCount();
+}
+
+document.getElementById('inputText').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) runScan();
+});
+</script>
+</body>
+</html>
