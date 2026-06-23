@@ -8,7 +8,7 @@
 // Deploy (Wrangler):
 //   npx wrangler deploy
 
-const MODEL = '@cf/meta/llama-3.1-8b-instruct';
+const MODEL = '@cf/zai-org/glm-4.7-flash';
 
 const ALLOWED_ORIGINS = new Set([
   'https://lindsayctweir.github.io',
@@ -62,6 +62,14 @@ function jsonResponse(body, status, origin) {
     status,
     headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
   });
+}
+
+function extractResponseText(result) {
+  if (typeof result.response === 'string') {
+    return result.response;
+  }
+  const content = result.choices?.[0]?.message?.content;
+  return typeof content === 'string' ? content : '';
 }
 
 function parseFlags(raw) {
@@ -122,7 +130,7 @@ export default {
         temperature: 0.1,
       });
 
-      const flags = parseFlags(result.response || '');
+      const flags = parseFlags(extractResponseText(result));
       return jsonResponse({ flags }, 200, origin);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Scan failed';

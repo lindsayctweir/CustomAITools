@@ -24,7 +24,7 @@ The project is split into two parts:
 
 1. The user pastes text into the browser UI.
 2. The frontend sends a `POST` request to the Cloudflare Worker with the text.
-3. The Worker calls [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/) (`@cf/meta/llama-3.1-8b-instruct`) with a detailed system prompt covering inclusive language guidelines.
+3. The Worker calls [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/) (`@cf/zai-org/glm-4.7-flash`) with a detailed system prompt covering inclusive language guidelines.
 4. The model returns a JSON array of flagged terms; the Worker parses and returns them to the frontend.
 5. The UI renders score, category pills, and expandable cards for each flag.
 
@@ -33,7 +33,7 @@ Browser (index.html)
        │  POST { "text": "..." }
        ▼
 Cloudflare Worker (worker.js)
-       │  Workers AI — Llama 3.1 8B Instruct
+       │  Workers AI — GLM 4.7 Flash
        ▼
 JSON { "flags": [ { term, category, why, suggestions, learn_more }, ... ] }
 ```
